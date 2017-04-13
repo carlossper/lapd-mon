@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '6'
+script:
+- cd monrarium-server
+before_install:
+- npm install -g npm
+deploy:
+  provider: heroku
+  api_key:
+    secure: hY5gqkBn3H7hZ/09KXW1cFNxGpjmHbbSAYUyncgbukPqsuVJ7+PO9FE2vTGsgf/efLOjbKIpc4Z9tUSdMg4nUZTKHB3C5Uq01+n71iirBGqv5CeDwHvqceBDs8za+30ZPYUHW/A/XGLFQwCLdiBr2fM10om15oyoQKJPfrWaetjFCRCx9I/v34tbMSNDLoFqTBxkGeTHmpvFe/sDYmGvCwMWc3fkVnyD8VJr0qOAHLzV516XB6yzBbo6Mb4KHulFfxOn/H9ThITTpfO5a6Mw+kEo4AOtPKUOKafu2Wb3XnrDyJ/Mhn+0P9kyHKoOEXk4GEDw+HZI8ohmZd9Cjteg/lrhWuC4B7IfCKNRO+Ze5LM9jYXnzGqqPukLQsm6k3U6z1vGyjRobMDdqnbqc/HLfPman6RMX+ugFuPTj6wi3LVn6V8/TtVwjUaLK1LT89BqSUteIm+7ZRmF85PJSWMp9y2qnbEvND3BIV8gpE6YBtOk/TEw/woh+0C+E7YrS6i73vu/WxT3cUPT1wvZXA8eT9W7oXJtl6/6NrOP2qCZZ5L/eL6Roc4DccGdutJ8E61xpv+7EoCekEn6W3KAXjrKVI7iF+w5yC6XyorjJ9aXNyJS5VZiXSqkDwMbw2IFhCX+kTjA53H3qjuNj+UaFxdR/JOYFqxbsbnVvFqkm1EqCbE=
+  app: monrarium
+  on:
+    repo: carlossper/lapd-mon
+    branch: server
