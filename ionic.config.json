@@ -1,0 +1,5 @@
+{
+  "name": "monrarium",
+  "app_id": "",
+  "gulpStartupTasks": ["sass", "watch"]
+}
