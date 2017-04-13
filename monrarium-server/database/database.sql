@@ -1,6 +1,7 @@
-DROP TABLE IF EXISTS users CASCADE;
+﻿DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS routes CASCADE;
-DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS locations CASCADE;
+DROP TABLE IF EXISTS route_location CASCADE;
 
 
 CREATE TABLE users (
@@ -18,7 +19,8 @@ CREATE TABLE routes (
 CREATE TABLE locations (
 	location_id SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
-	geolocation VARCHAR NOT NULL
+	latitude VARCHAR NOT NULL,
+	longitude VARCHAR NOT NULL
 );
 
 CREATE TABLE route_location (
