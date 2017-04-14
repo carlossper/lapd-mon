@@ -26,5 +26,5 @@ CREATE TABLE locations (
 CREATE TABLE route_location (
   route_id    int REFERENCES routes (route_id) ON UPDATE CASCADE ON DELETE CASCADE,
   location_id int REFERENCES locations (location_id) ON UPDATE CASCADE,
-  CONSTRAINT route_location_pkey PRIMARY KEY (route_id, location_id)  -- explicit pk
+  --CONSTRAINT route_location_pkey PRIMARY KEY (route_id, location_id)  -- explicit pk
 );

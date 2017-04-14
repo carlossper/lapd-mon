@@ -13,12 +13,85 @@ var db = pgp(connectionString);
 // add query functions
 
 module.exports = {
-    getRoute: getRoute
+    createLocation: createLocation,
+    getLocation: getLocation,
+    createRoute: createRoute,
+    getRoutes: getRoutes
 };
 
-function getRoute(req, res, next) {
+function createLocation(req, res, next) {
+    db.many('select latitude,longitude from locations where latitude = ${latitude} and longitude = ${longitude}', req.body)
+        .then(function (data) {
+            res.status(300)
+                .json({
+                    status: 'Failed',
+                    data: 'Location already exists',
+                    message: 'Inserting location failed'
+                });
+        })
+        .catch(function (err) {
+            db.one('insert into locations(name, latitude, longitude)' +
+                'values(${name}, ${latitude}, ${longitude}) returning location_id',
+                req.body)
+                .then(function (data) {
+                    res.status(200)
+                        .json({
+                            status: 'Success',
+                            data: data,
+                            message: 'Location created successfully'
+                        });
+                })
+        });
+}
+
+function getLocation(req, res, next) {
+    var location_id = parseInt(req.params.id);
+    db.many('select name,latitude,longitude from locations where location_id = $1', location_id)
+        .then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data: data,
+                    message: 'Retrieved location'
+                });
+        })
+        .catch(function (err) {
+
+            return next(err);
+        });
+
+
+}
+
+function createRoute(req, res, next) {
     var user_id = parseInt(req.params.id);
-    db.many('select name,username from users where user_id = $1', user_id)
+    db.one('insert into routes(user_id)' +
+        'values($1) returning route_id',
+        user_id)
+        .then(function (data) {
+            var route_id = parseInt(data.route_id);
+            for( var i = 0; i < req.body.location_id.length; i++) {
+                var location_id = parseInt(req.body.location_id[i]);
+                db.none('insert into route_location(route_id,location_id)' +
+                    'values($1,$2)',
+                    [route_id,location_id])
+            }
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data: 'Route inserted',
+                    message: 'Inserted'
+                });
+        })
+        .catch(function (err) {
+            return err;
+        });
+}
+
+
+function getRoutes(req, res, next) {
+    var user_id = parseInt(req.params.id);
+    db.many('select r.route_id,l.name,l.latitude,l.longitude from locations l,routes r,route_location rl where r.user_id = $1 and r.route_id = rl.route_id and l.location_id = rl.location_id', user_id)
         .then(function (data) {
             res.status(200)
                 .json({
@@ -32,3 +105,4 @@ function getRoute(req, res, next) {
             return next(err);
         });
 }
+
