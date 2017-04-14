@@ -10,7 +10,8 @@ Install the dependencies and start the server.
 
 ```sh
 $ npm install
-$ ionic serve
+$ npm install -g gulp
+$ ionic serve [--address localhost] //fix problem with google maps security
 ```
 
    [node.js]: <http://nodejs.org>

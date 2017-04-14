@@ -7,8 +7,8 @@ angular.module('app.routes', [])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
-    
-  
+
+
 
       .state('menu.home', {
     url: '/home-page',
@@ -18,12 +18,6 @@ angular.module('app.routes', [])
         controller: 'homeCtrl'
       }
     }
-  })
-
-  .state('cloud', {
-    url: '/page3',
-    templateUrl: 'templates/cloud.html',
-    controller: 'cloudCtrl'
   })
 
   .state('menu', {
@@ -82,8 +76,18 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('menu.map', {
+    url: '/map-page',
+    views: {
+      'side-menu21': {
+        templateUrl: 'templates/map.html',
+        controller: 'mapCtrl'
+      }
+    }
+  })
+
 $urlRouterProvider.otherwise('/side-menu21/home-page')
 
-  
+
 
 });

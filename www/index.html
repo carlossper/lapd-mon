@@ -5,27 +5,29 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <title></title>
 
-    
-    
+
+
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
+    <script src="lib/ngCordova/dist/ng-cordova.js"></script>
     <script src="cordova.js"></script>
 
-    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
-    <link href="css/ionic.app.css" rel="stylesheet">
-    -->
+    <script src="js/app.js"></script>
+    <script src="http://maps.google.com/maps/api/js?key=AIzaSyAbRgHL7mkAQUFDf99uU73Jb5duTBwIMms"></script>
 
-    
-    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
-    
+    <!-- compiled css output -->
+    <link href="css/ionic.app.css" rel="stylesheet">
+
+
+
 
     <style type="text/css">
       .platform-ios .manual-ios-statusbar-padding{
         padding-top:20px;
       }
       .manual-remove-top-padding{
-        padding-top:0px; 
+        padding-top:0px;
       }
       .manual-remove-top-padding .scroll{
         padding-top:0px !important;
@@ -52,26 +54,26 @@
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
     <script src="js/routes.js"></script>
-    
-     
-    <script src="js/directives.js"></script>
-     
-    <script src="js/services.js"></script>
-    
 
-    <!-- Only required for Tab projects w/ pages in multiple tabs 
+
+    <script src="js/directives.js"></script>
+
+    <script src="js/services.js"></script>
+
+
+    <!-- Only required for Tab projects w/ pages in multiple tabs
     <script src="lib/ionicuirouter/ionicUIRouter.js"></script>
     -->
 
   </head>
   <body ng-app="app" animation="slide-left-right-ios7">
   <div>
-  <div>
-    <ion-nav-bar class="bar-stable">
-      <ion-nav-back-button></ion-nav-back-button>
-    </ion-nav-bar>
-    <ion-nav-view></ion-nav-view>
+    <div>
+      <ion-nav-bar class="bar-stable">
+        <ion-nav-back-button></ion-nav-back-button>
+      </ion-nav-bar>
+      <ion-nav-view></ion-nav-view>
+    </div>
   </div>
-</div>
   </body>
 </html>
