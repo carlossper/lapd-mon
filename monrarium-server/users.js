@@ -13,10 +13,32 @@ var db = pgp(connectionString);
 // add query functions
 
 module.exports = {
+    loginUser: loginUser,
     getUser: getUser,
     createUser: createUser,
     updateUser: updateUser
 };
+
+function loginUser(req, res, next) {
+    var user_id = parseInt(req.params.id);
+    db.many('select name,username from users where user_id = $1 and password = $2', [user_id, req.body.password])
+        .then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    data: data,
+                    message: 'Retrieved user'
+                });
+        })
+        .catch(function (err) {
+            res.status(400)
+                .json({
+                    status: 'failed',
+                    data: 'Wrong Password',
+                    message: 'Error returning user'
+                });
+        });
+}
 
 function getUser(req, res, next) {
     var user_id = parseInt(req.params.id);
@@ -35,27 +57,34 @@ function getUser(req, res, next) {
         });
 }
 
-
 function createUser(req, res, next) {
-    db.one('insert into users(name, username, password)' +
-        'values(${name}, ${username}, ${password}) returning user_id',
-        req.body)
+    db.many('select name,username from users where username = ${username}', req.body)
         .then(function (data) {
-            res.status(200)
+            res.status(300)
                 .json({
-                    status: 'success',
-                    data: data,
-                    message: 'Inserted user'
+                    status: 'Failed',
+                    data: 'User already exists',
+                    message: 'Inserting user failed'
                     });
                 })
         .catch(function (err) {
-            return next(err);
+            db.one('insert into users(name, username, password)' +
+                'values(${name}, ${username}, ${password}) returning user_id',
+                req.body)
+                .then(function (data) {
+                    res.status(200)
+                        .json({
+                            status: 'Success',
+                            data: data,
+                            message: 'User created successfuly'
+                        });
+                })
     });
 }
 
 function updateUser(req, res, next) {
-    db.none('update users set name=$1, username=$2, password=$3 where user_id=$4',
-        [req.body.name, req.body.username, req.body.password,parseInt(req.params.id)])
+    db.none('update users set name=$1 where user_id=$2',
+        [req.body.name,parseInt(req.params.id)])
         .then(function () {
             res.status(200)
                 .json({
