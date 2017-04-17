@@ -20,7 +20,7 @@ module.exports = {
 };
 
 function loginUser(req, res, next) {
-    db.many('select name,username from users where username = $1 and password = $2', [req.params.username, req.params.password])
+    db.many('select name,username from users where username = $1 and password = $2', [req.query.username, req.query.password])
         .then(function (data) {
             res.status(200)
                 .json({
