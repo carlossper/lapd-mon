@@ -18,8 +18,8 @@ function ($scope, $stateParams, $cordovaGeolocation) {
 
   $scope.searchClick = function () {
     console.log($scope.selectedCategories);
-    $scope.locals = [];
-    initMap($scope.selectedCategories);
+    $scope.places = [];
+    $scope.initMap($scope.selectedCategories);
   }
 
   $scope.selectedLocals = [];
@@ -48,7 +48,8 @@ function ($scope, $stateParams, $cordovaGeolocation) {
     console.log("Could not get location");
   });
 
-  function initMap(categories) {
+
+  $scope.initMap = function (categories) {
     var church = false;
     var museum = false;
     var other = false;
@@ -56,6 +57,17 @@ function ($scope, $stateParams, $cordovaGeolocation) {
     map = new google.maps.Map(document.getElementById('map'), {
       center: $scope.position,
       zoom: 15
+    });
+
+    var marker = new google.maps.Marker({
+      map: map,
+      position: $scope.position,
+      label: "Está aqui!"
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.setContent("Você está aqui!");
+      infowindow.open(map, this);
     });
 
     for(var i = 0; i < categories.length; i++){
@@ -104,19 +116,42 @@ function ($scope, $stateParams, $cordovaGeolocation) {
 
   function callback(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
-      console.log(results);
       for (var i = 0; i < results.length; i++) {
         if(results[i].photos != null){
-          var local = {name: results[i].name, rating: results[i].rating, photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300})};
+          var place = {
+            name: results[i].name,
+            rating: results[i].rating,
+            photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300}),
+            location: results[i].geometry.location
+          };
         }
         else{
-          var local = {name: results[i].name, rating: results[i].rating, photo: null};
+          var place = {
+            name: results[i].name,
+            rating: results[i].rating,
+            photo: null,
+            location: results[i].geometry.location
+          };
         }
-        $scope.locals.push(local);
+        $scope.places.push(place);
+        createMarker(place);
       }
       $scope.$apply();
-      console.log($scope.locals);
+      console.log($scope.places);
     }
+  }
+
+  function createMarker(place) {
+    var placeLoc = place.location;
+    var marker = new google.maps.Marker({
+      map: map,
+      position: placeLoc
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.setContent(place.name);
+      infowindow.open(map, this);
+    });
   }
 }])
 
