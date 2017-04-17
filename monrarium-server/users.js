@@ -60,7 +60,7 @@ function getUser(req, res, next) {
 function createUser(req, res, next) {
     db.many('select name,username from users where username = ${username}', req.body)
         .then(function (data) {
-            res.status(300)
+            res.status(200)
                 .json({
                     status: 'Failed',
                     data: 'User already exists',
