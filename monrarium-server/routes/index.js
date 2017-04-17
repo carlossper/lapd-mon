@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
 
 //user
 router.get('/api/users/:id', dbuser.getUser);
-router.post('/api/users/:username',dbuser.loginUser);
+router.post('/api/users/:username/:password',dbuser.loginUser);
 router.post('/api/users', dbuser.createUser);
 router.put('/api/users/:id', dbuser.updateUser);
 
