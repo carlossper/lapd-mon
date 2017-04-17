@@ -1,12 +1,16 @@
 angular.module('app.controllers', [])
 
-.controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', '$ionicTabsDelegate', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $cordovaGeolocation) {
+function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
   $scope.selectedCategories = [];
   $scope.distanceValue = 5;
   $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
+
+  $scope.selectTabWithIndex = function(index) {
+    $ionicTabsDelegate.select(index);
+  }
 
   $scope.onValueChanged = function(value){
     $scope.selectedCategories = value;
@@ -33,10 +37,13 @@ function ($scope, $stateParams, $cordovaGeolocation) {
       $scope.selectedLocals.push(member);
       member.selected = true;
     }
+    console.log($scope.selectedLocals);
   }
+
 
   var map;
   var infowindow;
+  var markers = [];
 
   var options = {timeout: 10000, enableHighAccuracy: true};
 
@@ -148,10 +155,38 @@ function ($scope, $stateParams, $cordovaGeolocation) {
       position: placeLoc
     });
 
+    markers.push(marker);
     google.maps.event.addListener(marker, 'click', function() {
       infowindow.setContent(place.name);
       infowindow.open(map, this);
     });
+  }
+
+  // Sets the map on all markers in the array.
+  function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  }
+
+  // Removes the markers from the map, but keeps them in the array.
+  function clearMarkers() {
+    setMapOnAll(null);
+    markers = [];
+  }
+
+  // Shows any markers currently in the array.
+  function showMarkers() {
+    setMapOnAll(map);
+  }
+
+  $scope.filterMarkers = function (){
+    clearMarkers();
+    for(var i = 0; i < $scope.selectedLocals.length; i++){
+      markers.push(createMarker($scope.selectedLocals[i]));
+    }
+
+    $scope.selectTabWithIndex(0);
   }
 }])
 

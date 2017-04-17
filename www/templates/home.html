@@ -1,7 +1,5 @@
 <ion-view title="Home" id="page1">
   <ion-content padding="true" class="has-header">
-    <div class="spacer" style="width: 300px; height: 40px;"></div>
-
     <ion-tabs class="tabs-positive tabs-icon-top">
 
       <ion-tab title="Pesquisa" icon-on="ion-ios-filing" icon-off="ion-ios-filing-outline">
@@ -21,22 +19,40 @@
             <input type="range" min="1" max="20" step="1" ng-model="distanceValue" ng-init="distanceValue=5" ng-change="onDistanceChanged(distanceValue)">
             <div>Raio: {{distanceValue}} Km</div>
           </ion-item>
-          <button id="home-button4" class="button button-positive  button-block icon ion-search" ng-click="searchClick()"> Pesquisar</button>
+          <div class="row">
+            <div class="col">
+              <button id="home-button4" class="button button-positive button-block icon ion-search" ng-click="searchClick()"> Pesquisar</button>
+            </div>
+            <div class="col">
+              <button id="home-button5" class="button button-assertive button-block icon ion-trash-b" ng-click="clearAll()"> Limpar Pesquisa</button>
+            </div>
+          </div>
         </form>
           <div id="map"></div>
       </ion-tab>
 
       <ion-tab title="Lista" icon-on="ion-ios-list" icon-off="ion-ios-list-outline">
         <!-- Tab 2 content -->
-        <ion-content padding="true" class="has-header">
-        <ion-list id="home-list5">
-          <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="place in places" ng-click="clickedLocals(place)" ng-class="{ active: place.selected }">
-            <img src="{{place.photo}}">
-            <h2>{{place.name}}</h2>
-            <p>Rating: {{place.rating}}</p>
-          </ion-item>
-        </ion-list>
+        <ion-content padding="true" class="has-footer">
+          <ion-list id="home-list5">
+            <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="place in places" ng-click="clickedLocals(place)" ng-class="{ active: place.selected }">
+              <img src="{{place.photo}}">
+              <h2>{{place.name}}</h2>
+              <p>Rating: {{place.rating}}</p>
+            </ion-item>
+          </ion-list>
         </ion-content>
+        <div class="spacer" style="width: 300px; height: 50px;"></div>
+        <div class="search-buttons">
+          <div class="row">
+            <div class="col">
+              <button id="home-button6" class="button button-energized button-block icon ion-ios-settings-strong" ng-click="filterMarkers()"> Restringir mapa</button>
+            </div>
+            <div class="col">
+              <button id="home-button7" class="button button-block button-positive icon ion-navigate"  ng-click="showRoutes()"> Sugerir rotas</button>
+            </div>
+          </div>
+        </div>
       </ion-tab>
 
     </ion-tabs>
