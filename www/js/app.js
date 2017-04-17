@@ -5,16 +5,21 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives','app.services', 'ngCordova',])
+var App = angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives','app.services', 'ngCordova', 'ionic-multiselect',]);
 
-.config(function($ionicConfigProvider, $sceDelegateProvider){
+App.config(function($ionicConfigProvider, $sceDelegateProvider){
 
 
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
 
-})
+});
 
-.run(function($ionicPlatform) {
+App.config(function(multiselectProvider) {
+  multiselectProvider.setTemplateUrl('lib/ionic-multiselect/dist/templates/item-template.html');
+  multiselectProvider.setModalTemplateUrl('lib/ionic-multiselect/dist/templates/modal-template.html');
+});
+
+App.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -27,13 +32,13 @@ angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives
       StatusBar.styleDefault();
     }
   });
-})
+});
 
 /*
   This directive is used to disable the "drag to open" functionality of the Side-Menu
   when you are dragging a Slider component.
 */
-.directive('disableSideMenuDrag', ['$ionicSideMenuDelegate', '$rootScope', function($ionicSideMenuDelegate, $rootScope) {
+App.directive('disableSideMenuDrag', ['$ionicSideMenuDelegate', '$rootScope', function($ionicSideMenuDelegate, $rootScope) {
     return {
         restrict: "A",
         controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
@@ -54,12 +59,12 @@ angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives
 
         }]
     };
-}])
+}]);
 
 /*
   This directive is used to open regular and dynamic href links inside of inappbrowser.
 */
-.directive('hrefInappbrowser', function() {
+App.directive('hrefInappbrowser', function() {
   return {
     restrict: 'A',
     replace: false,

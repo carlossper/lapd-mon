@@ -5,7 +5,13 @@ angular.module('app.controllers', [])
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
 function ($scope, $stateParams) {
 
+  $scope.data = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
+  //$scope.default=["Item 2"];
+  $scope.onValueChanged = function(value){
+    console.log(value);
+  }
 
+  $scope.distanceValue = 5;
 }])
 
 .controller('cloudCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller

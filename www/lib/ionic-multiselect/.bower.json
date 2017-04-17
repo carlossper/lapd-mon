@@ -1,0 +1,38 @@
+{
+  "name": "ionic-multiselect",
+  "version": "0.1.5",
+  "authors": [
+    "Martin Peveri <martinpeveri@gmail.com>"
+  ],
+  "description": "Multiselect for Inonic Framework.",
+  "main": "./dist/ionic-multiselect.js",
+  "moduleType": [],
+  "keywords": [
+    "angular",
+    "angularjs",
+    "javascript",
+    "ionic",
+    "Multiselect"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/mapeveri/ionic-multiselect",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "images",
+    "example"
+  ],
+  "_release": "0.1.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.5",
+    "commit": "196d694481f329f2948f71e768ef1f7d0b1f8c78"
+  },
+  "_source": "https://github.com/mapeveri/ionic-multiselect.git",
+  "_target": "^0.1.5",
+  "_originalSource": "ionic-multiselect",
+  "_direct": true
+}
