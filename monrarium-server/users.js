@@ -30,7 +30,7 @@ function loginUser(req, res, next) {
                 });
         })
         .catch(function (err) {
-            res.status(400)
+            res.status(200)
                 .json({
                     status: 'failed',
                     data: 'Wrong Password',
