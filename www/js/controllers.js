@@ -13,6 +13,7 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
   }
 
   $scope.onValueChanged = function(value){
+    console.log($scope);
     $scope.selectedCategories = value;
   }
 
@@ -24,6 +25,15 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
     console.log($scope.selectedCategories);
     $scope.places = [];
     $scope.initMap($scope.selectedCategories);
+  }
+
+  $scope.clearAll = function() {
+    $scope.selectedCategories = [];
+    $scope.distanceValue = 5;
+    $scope.places = [];
+    clearMarkers();
+    $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
+    $scope.$apply();
   }
 
   $scope.selectedLocals = [];
@@ -173,11 +183,6 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
   function clearMarkers() {
     setMapOnAll(null);
     markers = [];
-  }
-
-  // Shows any markers currently in the array.
-  function showMarkers() {
-    setMapOnAll(map);
   }
 
   $scope.filterMarkers = function (){
