@@ -17,10 +17,22 @@ function ($scope, $stateParams, $cordovaGeolocation) {
   }
 
   $scope.searchClick = function () {
-    console.log($scope.distanceValue);
     console.log($scope.selectedCategories);
-    $scope.items = [];
+    $scope.locals = [];
     initMap($scope.selectedCategories);
+  }
+
+  $scope.selectedLocals = [];
+
+  $scope.clickedLocals = function (member) {
+    var index = $scope.selectedLocals.indexOf(member);
+    if (index > -1) {
+      $scope.selectedLocals.splice(index, 1);
+      member.selected = false;
+    } else {
+      $scope.selectedLocals.push(member);
+      member.selected = true;
+    }
   }
 
   var map;
@@ -95,15 +107,15 @@ function ($scope, $stateParams, $cordovaGeolocation) {
       console.log(results);
       for (var i = 0; i < results.length; i++) {
         if(results[i].photos != null){
-          var item = {name: results[i].name, rating: results[i].rating, photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300})};
+          var local = {name: results[i].name, rating: results[i].rating, photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300})};
         }
         else{
-          var item = {name: results[i].name, rating: results[i].rating, photo: null};
+          var local = {name: results[i].name, rating: results[i].rating, photo: null};
         }
-        $scope.items.push(item);
+        $scope.locals.push(local);
       }
       $scope.$apply();
-      console.log($scope.items);
+      console.log($scope.locals);
     }
   }
 }])

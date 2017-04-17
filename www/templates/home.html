@@ -19,10 +19,10 @@
     </form>
     <div class="spacer" style="width: 300px; height: 40px;"></div>
     <ion-list id="home-list5">
-      <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="item in items">
-        <img src="{{item.photo}}">
-        <h2>{{item.name}}</h2>
-        <p>Rating: {{item.rating}}</p>
+      <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="local in locals" ng-click="clickedLocals(local)" ng-class="{ active: local.selected }">
+        <img src="{{local.photo}}">
+        <h2>{{local.name}}</h2>
+        <p>Rating: {{local.rating}}</p>
       </ion-item>
     </ion-list>
     <div id="map" hidden></div>
