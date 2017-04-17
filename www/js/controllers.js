@@ -185,7 +185,7 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
 
           if($scope.response=="Success") {
             $scope.title="Account Created!";
-            $scope.template="Your account has been succesfully created!";
+            $scope.template="Your account has been successfully created!";
 
             $ionicHistory.nextViewOptions({
               disableAnimate: true,
@@ -222,6 +222,10 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
         if($scope.response=="success") {
           $scope.title="Logged in!";
           $scope.template="You have successfully logged in!";
+          sessionStorage.setItem('user_id', res.data.data[0].user_id);
+          sessionStorage.setItem('name', res.data.data[0].name);
+          sessionStorage.setItem('username', res.data.data[0].username);
+
 
           $ionicHistory.nextViewOptions({
             disableAnimate: true,
@@ -242,18 +246,68 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
   }
 }])
 
-.controller('myProfileCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('myProfileCtrl', ['$scope', '$stateParams','$rootScope','$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+function($scope,$stateParams, $rootScope,$ionicHistory,$state) {
 
+  $scope.logout=function(){
+
+    //delete all the sessions
+    delete sessionStorage.user_id;
+    delete sessionStorage.username;
+    delete sessionStorage.name;
+
+    // remove the profile page backlink after logout.
+    $ionicHistory.nextViewOptions({
+      disableAnimate: true,
+      disableBack: true
+    });
+
+    // After logout you will be redirected to the menu page,with no backlink
+    $state.go('menu.home', {}, {location: "replace", reload: true});
+  };
 
 }])
 
-.controller('editProfileCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('editProfileCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
+  $scope.user_id= sessionStorage.getItem('user_id');
+  $scope.name= sessionStorage.getItem('name');
+  $scope.username= sessionStorage.getItem('username');
+
+  $scope.edit=function(data) {
+    var link ="http://monrarium.herokuapp.com/api/users/"
+    $http.put(link+$scope.user_id, {name: data.name, username:$scope.username })
+      .then(function (res) {
+        $scope.response = res.data.status;
+        console.log($scope.response);
+
+        if($scope.response=="success") {
+          $scope.title="Name successfully edited!";
+          $scope.template="Your name has been successfully edited!";
+          sessionStorage.setItem('name', data.name);
+
+          $ionicHistory.nextViewOptions({
+            disableAnimate: true,
+            disableBack:true
+          });
+
+          $state.go('menu.myProfile', {}, {location: "replace", reload: true});
+        }
+        else {
+          $scope.title="Failed";
+          $scope.template="Couldn't edit name!";
+        }
+        var alertPopup = $ionicPopup.alert({
+          title: $scope.title,
+          template: $scope.template
+        });
+      })
+  }
+
 
 
 }])
