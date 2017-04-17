@@ -20,8 +20,7 @@ module.exports = {
 };
 
 function loginUser(req, res, next) {
-    var user_id = parseInt(req.params.id);
-    db.many('select name,username from users where user_id = $1 and password = $2', [user_id, req.body.password])
+    db.many('select name,username from users where username = $1 and password = $2', [req.body.username, req.body.password])
         .then(function (data) {
             res.status(200)
                 .json({
