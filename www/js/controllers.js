@@ -136,20 +136,75 @@ function ($scope, $stateParams) {
 
 }])
 
-.controller('signupCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('signupCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
 
+    $scope.signup=function(data) {
+      var link ="http://monrarium.herokuapp.com/api/users/"
+      $http.post(link, {name: data.name, username:data.username, password:data.password })
+        .then(function (res) {
+          $scope.response = res.data.status;
+          console.log($scope.response);
+
+          if($scope.response=="Success") {
+            $scope.title="Account Created!";
+            $scope.template="Your account has been succesfully created!";
+
+            $ionicHistory.nextViewOptions({
+              disableAnimate: true,
+              disableBack:true
+            });
+
+            $state.go('menu.login', {}, {location: "replace", reload: true});
+          }
+          else {
+            $scope.title="Failed";
+            $scope.template="Username already exists";
+          }
+          var alertPopup = $ionicPopup.alert({
+            title: $scope.title,
+            template: $scope.template
+          });
+        })
+    }
 
 }])
 
-.controller('loginCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('loginCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
 
+  $scope.login=function(data) {
+    var link ="http://monrarium.herokuapp.com/api/users"
+    $http.get(link+"?username="+data.username+"&password="+data.password)
+      .then(function (res) {
+        $scope.response = res.data.status;
+        console.log($scope.response);
 
+        if($scope.response=="success") {
+          $scope.title="Logged in!";
+          $scope.template="You have successfully logged in!";
+
+          $ionicHistory.nextViewOptions({
+            disableAnimate: true,
+            disableBack:true
+          });
+
+          $state.go('menu.home', {}, {location: "replace", reload: true});
+        }
+        else {
+          $scope.title="Failed";
+          $scope.template="Wrong username/password";
+        }
+        var alertPopup = $ionicPopup.alert({
+          title: $scope.title,
+          template: $scope.template
+        });
+      })
+  }
 }])
 
 .controller('myProfileCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
