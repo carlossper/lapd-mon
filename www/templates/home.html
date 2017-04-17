@@ -1,30 +1,44 @@
 <ion-view title="Home" id="page1">
   <ion-content padding="true" class="has-header">
-    <form id="home-form5" class="list">
-      <multiselect
-        header-text="Tipos de Monumentos"
-        items="categories"
-        text-property="value"
-        value-property="id"
-        is-translate="false"
-        text="Tipos de monumentos"
-        value-changed="onValueChanged(value)"
-        default-value="default">
-      </multiselect>
-      <ion-item class="range range-positive" id="home-range1">Distância
-        <input type="range" min="0" max="20" step="1" ng-model="distanceValue" ng-init="distanceValue=5" ng-change="onDistanceChanged(distanceValue)">
-        <div>Total: {{distanceValue}} Km</div>
-      </ion-item>
-      <button id="home-button4" class="button button-positive  button-block icon ion-search" ng-click="searchClick()"> Pesquisar</button>
-    </form>
     <div class="spacer" style="width: 300px; height: 40px;"></div>
-    <ion-list id="home-list5">
-      <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="local in locals" ng-click="clickedLocals(local)" ng-class="{ active: local.selected }">
-        <img src="{{local.photo}}">
-        <h2>{{local.name}}</h2>
-        <p>Rating: {{local.rating}}</p>
-      </ion-item>
-    </ion-list>
-    <div id="map" hidden></div>
+
+    <ion-tabs class="tabs-positive tabs-icon-top">
+
+      <ion-tab title="Pesquisa" icon-on="ion-ios-filing" icon-off="ion-ios-filing-outline">
+        <!-- Tab 1 content -->
+        <form id="home-form5" class="list">
+          <multiselect
+            header-text="Tipos de Monumentos"
+            items="categories"
+            text-property="value"
+            value-property="id"
+            is-translate="false"
+            text="Tipos de monumentos"
+            value-changed="onValueChanged(value)"
+            default-value="default">
+          </multiselect>
+          <ion-item class="range range-positive" id="home-range1">Distância
+            <input type="range" min="1" max="20" step="1" ng-model="distanceValue" ng-init="distanceValue=5" ng-change="onDistanceChanged(distanceValue)">
+            <div>Raio: {{distanceValue}} Km</div>
+          </ion-item>
+          <button id="home-button4" class="button button-positive  button-block icon ion-search" ng-click="searchClick()"> Pesquisar</button>
+        </form>
+          <div id="map"></div>
+      </ion-tab>
+
+      <ion-tab title="Lista" icon-on="ion-ios-list" icon-off="ion-ios-list-outline">
+        <!-- Tab 2 content -->
+        <ion-content padding="true" class="has-header">
+        <ion-list id="home-list5">
+          <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="place in places" ng-click="clickedLocals(place)" ng-class="{ active: place.selected }">
+            <img src="{{place.photo}}">
+            <h2>{{place.name}}</h2>
+            <p>Rating: {{place.rating}}</p>
+          </ion-item>
+        </ion-list>
+        </ion-content>
+      </ion-tab>
+
+    </ion-tabs>
   </ion-content>
 </ion-view>
