@@ -1,9 +1,9 @@
 angular.module('app.controllers', [])
 
-.controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', '$ionicTabsDelegate', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+.controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', '$ionicTabsDelegate', '$state', 'MapMarkers', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
+function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state, MapMarkers) {
   $scope.selectedCategories = [];
   $scope.distanceValue = 5;
   $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
@@ -188,11 +188,20 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate) {
   $scope.filterMarkers = function (){
     clearMarkers();
     for(var i = 0; i < $scope.selectedLocals.length; i++){
+      console.log($scope.selectedLocals[i]);
       markers.push(createMarker($scope.selectedLocals[i]));
     }
 
     $scope.selectTabWithIndex(0);
   }
+
+  $scope.showRoutes = function () {
+    console.log(markers);
+    MapMarkers.setMarkers(markers);
+    MapMarkers.setActualPosition($scope.position);
+    $state.go('menu.map');
+  }
+
 }])
 
 .controller('cloudCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
@@ -360,22 +369,106 @@ function ($scope, $stateParams) {
 
 }])
 
-.controller('mapCtrl', function($scope, $state, $cordovaGeolocation) {
-  var options = {timeout: 10000, enableHighAccuracy: true};
+.controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers) {
 
-  $cordovaGeolocation.getCurrentPosition(options).then(function(position){
+  $scope.mapmarkers = MapMarkers.getMarkers();
+  $scope.position = MapMarkers.getActualPosition();
+  $scope.waypoints = [];
+  var map;
 
-    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  console.log("AQUI É O MAPA!!!");
+  console.log($scope.mapmarkers);
+  console.log($scope.position);
+  var origin1 = $scope.position;
 
-    var mapOptions = {
-      center: latLng,
-      zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
+  var destinations = [];
 
-    $scope.map = new google.maps.Map(document.getElementById("map"), mapOptions);
+  for(var i = 0; i < $scope.mapmarkers.length; i++){
+    if(typeof $scope.mapmarkers[i] !== 'undefined')
+      destinations.push($scope.mapmarkers[i].position);
+  }
 
-  }, function(error){
-    console.log("Could not get location");
-  });
+  var service = new google.maps.DistanceMatrixService();
+  service.getDistanceMatrix(
+    {
+      origins: [origin1],
+      destinations: destinations,
+      travelMode: 'WALKING',
+      unitSystem: google.maps.UnitSystem.METRIC,
+      avoidHighways: false,
+      avoidTolls: false,
+    }, callback);
+
+  function callback(response, status) {
+    if (status == 'OK') {
+      var origins = response.originAddresses;
+
+      for (var i = 0; i < origins.length; i++) {
+        var results = response.rows[i].elements;
+        for (var j = 0; j < results.length; j++) {
+          var element = {
+            location: destinations[j],
+            distanceText: results[j].distance.text,
+            distance: results[j].distance.value,
+            durationText: results[j].duration.text,
+            duration: results[j].duration.value};
+          $scope.waypoints.push(element);
+        }
+        $scope.waypoints.sort(function(a, b){return a.distance-b.distance});
+        console.log($scope.waypoints);
+      }
+    }
+    initMap();
+  }
+
+  function initMap() {
+    var directionsService = new google.maps.DirectionsService;
+    var directionsDisplay = new google.maps.DirectionsRenderer;
+
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: $scope.position,
+      zoom: 15
+    });
+    
+    directionsDisplay.setMap(map);
+
+    calculateAndDisplayRoute(directionsService, directionsDisplay);
+  }
+
+  function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+    var waypts = [];
+    for (var i = 0; i < $scope.waypoints.length - 1; i++) {
+        waypts.push({
+          location: $scope.waypoints[i].location,
+          stopover: true
+        });
+    }
+
+    directionsService.route({
+      origin: $scope.position,
+      destination: $scope.waypoints[$scope.waypoints.length - 1].location,
+      waypoints: waypts,
+      optimizeWaypoints: true,
+      travelMode: 'WALKING'
+    }, function(response, status) {
+      if (status === 'OK') {
+        directionsDisplay.setDirections(response);
+        var route = response.routes[0];
+        var summaryPanel = document.getElementById('directions-panel');
+        summaryPanel.innerHTML = '';
+        // For each route, display summary information.
+        for (var i = 0; i < route.legs.length; i++) {
+          var routeSegment = i + 1;
+          summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment +
+            '</b><br>';
+          summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+          summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+          summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+        }
+      } else {
+        window.alert('Directions request failed due to ' + status);
+      }
+    });
+  }
+
 })
