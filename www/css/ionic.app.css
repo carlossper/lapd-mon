@@ -9833,3 +9833,9 @@ div.search-buttons {
   right: 0;
   bottom: 4%;
 }
+
+.tabs-positive > .tabs {
+  left: 0;
+  max-width: none;
+  width: 100%;
+}
