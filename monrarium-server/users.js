@@ -87,7 +87,7 @@ function updateUser(req, res, next) {
         .then(function () {
             res.status(200)
                 .json({
-                    status: 'Successo',
+                    status: 'Sucesso',
                     message: 'Utilizador atualizado'
                 });
         })
