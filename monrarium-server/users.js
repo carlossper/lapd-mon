@@ -24,17 +24,17 @@ function loginUser(req, res, next) {
         .then(function (data) {
             res.status(200)
                 .json({
-                    status: 'success',
+                    status: 'Sucesso',
                     data: data,
-                    message: 'Retrieved user'
+                    message: 'Utilizador retornado'
                 });
         })
         .catch(function (err) {
             res.status(200)
                 .json({
-                    status: 'failed',
-                    data: 'Wrong Password',
-                    message: 'Error returning user'
+                    status: 'Erro',
+                    data: 'Password errada',
+                    message: 'Erro a retornar o utilizador'
                 });
         });
 }
@@ -45,9 +45,9 @@ function getUser(req, res, next) {
         .then(function (data) {
             res.status(200)
                 .json({
-                    status: 'success',
+                    status: 'Sucesso',
                     data: data,
-                    message: 'Retrieved user'
+                    message: 'Utilizador retornado'
                 });
         })
         .catch(function (err) {
@@ -61,9 +61,9 @@ function createUser(req, res, next) {
         .then(function (data) {
             res.status(200)
                 .json({
-                    status: 'Failed',
-                    data: 'User already exists',
-                    message: 'Inserting user failed'
+                    status: 'Erro',
+                    data: 'Utilizador ja existe',
+                    message: 'Erro a inserir utilizador'
                     });
                 })
         .catch(function (err) {
@@ -73,9 +73,9 @@ function createUser(req, res, next) {
                 .then(function (data) {
                     res.status(200)
                         .json({
-                            status: 'Success',
+                            status: 'Successo',
                             data: data,
-                            message: 'User created successfuly'
+                            message: 'Utilizador criado com sucesso'
                         });
                 })
     });
@@ -87,8 +87,8 @@ function updateUser(req, res, next) {
         .then(function () {
             res.status(200)
                 .json({
-                    status: 'success',
-                    message: 'Updated user'
+                    status: 'Successo',
+                    message: 'Utilizador atualizado'
                 });
         })
         .catch(function (err) {

@@ -24,9 +24,9 @@ function createLocation(req, res, next) {
         .then(function (data) {
             res.status(300)
                 .json({
-                    status: 'Failed',
-                    data: 'Location already exists',
-                    message: 'Inserting location failed'
+                    status: 'Erro',
+                    data: 'Localizacao ja existe',
+                    message: 'Erro a inserir localizacao'
                 });
         })
         .catch(function (err) {
@@ -36,9 +36,9 @@ function createLocation(req, res, next) {
                 .then(function (data) {
                     res.status(200)
                         .json({
-                            status: 'Success',
+                            status: 'Successo',
                             data: data,
-                            message: 'Location created successfully'
+                            message: 'Localizacao criada com sucesso'
                         });
                 })
         });
@@ -50,9 +50,9 @@ function getLocation(req, res, next) {
         .then(function (data) {
             res.status(200)
                 .json({
-                    status: 'success',
+                    status: 'Sucesso',
                     data: data,
-                    message: 'Retrieved location'
+                    message: 'Localizacao retornada'
                 });
         })
         .catch(function (err) {
@@ -78,9 +78,9 @@ function createRoute(req, res, next) {
             }
             res.status(200)
                 .json({
-                    status: 'success',
-                    data: 'Route inserted',
-                    message: 'Inserted'
+                    status: 'Sucesso',
+                    data: 'Rota inserida',
+                    message: 'Rota inserida'
                 });
         })
         .catch(function (err) {
@@ -95,9 +95,9 @@ function getRoutes(req, res, next) {
         .then(function (data) {
             res.status(200)
                 .json({
-                    status: 'success',
+                    status: 'Sucesso',
                     data: data,
-                    message: 'Retrieved user'
+                    message: 'Rota retornada'
                 });
         })
         .catch(function (err) {
