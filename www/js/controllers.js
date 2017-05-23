@@ -421,7 +421,7 @@ function ($scope, $stateParams) {
 
 
     }])
-.controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers, Location) {
+.controller('mapCtrl', function($scope, $state, $http,$ionicPopup, $cordovaGeolocation, MapMarkers, Location) {
 
   $scope.finishedRequest = false;
   $scope.mapmarkers = MapMarkers.getMarkers();
@@ -523,6 +523,51 @@ function ($scope, $stateParams) {
         $scope.finishedRequest = true;
         console.log($scope.finishedRequest);
         console.log($scope.data);
+        var logged = sessionStorage.getItem('logged');
+        $scope.user_id= sessionStorage.getItem('user_id');
+        console.log('user',$scope.user_id);
+
+        if(logged != null) {
+          var link ="http://monrarium.herokuapp.com/api/locations/"
+          var link2 ="http://monrarium.herokuapp.com/api/routes/"+$scope.user_id
+          var route_add_location = new Array();
+          for(var k = 0; k < $scope.data.length; k++) {
+
+            var rating;
+            if($scope.data[k].location.rating === undefined){
+              rating = null;
+            }
+            else {
+              rating = $scope.data[k].location.rating;
+            }
+            $http.post(link, {name: $scope.data[k].location.name, rating:rating, distance:$scope.data[k].route.distance.text, time:$scope.data[k].route.duration.text, address:$scope.data[k].route.end_address })
+              .then(function (res) {
+                $scope.response = res.data.data;
+                if(res.data.status == "Erro")
+                  route_add_location.push($scope.response[0].location_id);
+                else
+                  route_add_location.push($scope.response.location_id);
+              })
+
+          }
+          var jsonData=angular.toJson(route_add_location);
+          var objectToSerialize={'location_id':jsonData};
+          $http.post(link2, objectToSerialize)
+            .then(function (res) {
+              $scope.response = res.data.status;
+              console.log($scope.response);
+              if($scope.response=="Sucesso") {
+                $scope.title="Rota Criada!";
+                $scope.template="A rota foi guardada com sucesso!";
+              }
+              else {
+              }
+              var alertPopup = $ionicPopup.alert({
+                title: $scope.title,
+                template: $scope.template
+              });
+            })
+        }
         var route = response.routes[0];
         var summaryPanel = document.getElementById('directions-panel');
         summaryPanel.innerHTML = '';
