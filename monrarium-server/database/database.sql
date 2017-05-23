@@ -19,8 +19,11 @@ CREATE TABLE routes (
 CREATE TABLE locations (
 	location_id SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
-	latitude VARCHAR NOT NULL,
-	longitude VARCHAR NOT NULL
+    rating VARCHAR,
+    distance VARCHAR NOT NULL,
+    time VARCHAR NOT NULL,
+    morada VARCHAR NOT NULL
+    
 );
 
 CREATE TABLE route_location (
