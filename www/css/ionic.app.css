@@ -9820,7 +9820,7 @@ a.button {
 
 #map {
   width: 100%;
-  height: 70%; }
+  height: 63%; }
 
 #map2 {
   width: 100%;
@@ -9837,7 +9837,7 @@ div.search-buttons {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 4%;
+  bottom: 5%;
 }
 
 .tabs-positive > .tabs {
@@ -9852,4 +9852,23 @@ div.search-buttons {
 
 #locations button {
   margin: 0;
+}
+
+.adp-warnbox {
+  opacity: 0;
+  height: 0;
+}
+
+.map-marker img{
+  max-width: 50px;
+  max-height: 50px;
+  margin-right: 15px;
+}
+
+#monuments-list {
+  bottom: 18%;
+}
+
+#search-box {
+  margin-bottom: 0;
 }

@@ -1,10 +1,10 @@
-<ion-view title="Home" id="page1">
+<ion-view title="MONrarium" id="page1">
   <ion-content padding="true" class="has-header">
-    <ion-tabs class="tabs-positive tabs-icon-top">
+    <ion-tabs class="tabs-positive tabs-icon-top" id="tabs">
 
       <ion-tab title="Pesquisa" icon-on="ion-ios-filing" icon-off="ion-ios-filing-outline">
         <!-- Tab 1 content -->
-        <form id="home-form5" class="list">
+        <form id="search-box" class="list" >
           <multiselect
             header-text="Tipos de Monumentos"
             items="categories"
@@ -33,7 +33,7 @@
 
       <ion-tab title="Lista" icon-on="ion-ios-list" icon-off="ion-ios-list-outline">
         <!-- Tab 2 content -->
-        <ion-content padding="true" class="has-footer">
+        <ion-content padding="true" class="has-footer" id="monuments-list">
           <ion-list id="home-list5">
             <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="place in places" ng-click="clickedLocals(place)" ng-class="{ active: place.selected }">
               <img src="{{place.photo}}">
@@ -42,7 +42,6 @@
             </ion-item>
           </ion-list>
         </ion-content>
-        <div class="spacer" style="width: 300px; height: 50px;"></div>
         <div class="search-buttons">
           <div class="row">
             <div class="col">

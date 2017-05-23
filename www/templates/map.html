@@ -2,28 +2,28 @@
   <ion-content padding="true">
     <div id="map2"></div>
 
-    <ion-list id="locations" ng-repeat="d in data" ng-show="data">
-      <div class="item item-divider">
-        {{$index}} - {{d.location.name}}
-      </div>
-      <ion-item class="item-thumbnail-left" >
-        <img src="{{d.location.photo}}">
-        <div class="row">
-          <div class="col">
-            <p><b>Rating:</b> {{d.location.rating}}</p>
-          </div>
-          <div class="col">
-            <p><b>Distância:</b> {{d.waypoint.distanceText}}</p>
-          </div>
-          <div class="col">
-            <p><b>Tempo:</b> {{d.waypoint.durationText}}</p>
-          </div>
-        </div>
-        <button class="button button-block button-positive icon ion-ios-navigate-outline" ng-click="openDirections($index)"> Mostrar direções</button>
-      </ion-item>
-    </ion-list>
-
-
-    <div id="directions-panel"></div>
+          <ion-list id="locations" ng-repeat="d in data" ng-if="data">
+            <div class="item item-divider">
+              {{d.location.name}}
+            </div>
+            <ion-item class="item-thumbnail-left" >
+              <img src="{{d.location.photo}}">
+              <div class="row">
+                <div class="col">
+                  <p><b>Distância:</b> {{d.waypoint.distanceText}}</p>
+                  <p><b>Tempo:</b> {{d.waypoint.durationText}}</p>
+                </div>
+                <div class="col">
+                  <p><b>Rating:</b> {{d.location.rating}}</p>
+                </div>
+              </div>
+              <div class="row item-text-wrap">
+                <div class="col">
+                  <h3>{{routes.routes[0].legs[$index].end_address}}</h3>
+                </div>
+              </div>
+            </ion-item>
+          </ion-list>
+    <button class="button button-block button-positive icon ion-ios-navigate-outline" ng-click="openDirections($index)"> Mostrar direções</button>
   </ion-content>
 </ion-view>
