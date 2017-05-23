@@ -6,7 +6,7 @@ angular.module('app.controllers', [])
 function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state, MapMarkers) {
   $scope.selectedCategories = [];
   $scope.distanceValue = 5;
-  $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
+  $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}, {id: 4, value: "Estátuas"}];
 
   $scope.selectTabWithIndex = function(index) {
     $ionicTabsDelegate.select(index);
@@ -32,7 +32,7 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state,
     $scope.distanceValue = 5;
     $scope.places = [];
     clearMarkers();
-    $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}];
+    $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}, {id: 4, value: "Estátuas"}];
     $scope.$apply();
   }
 
@@ -69,6 +69,7 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state,
   $scope.initMap = function (categories) {
     var church = false;
     var museum = false;
+    var statue = false;
     var other = false;
 
     map = new google.maps.Map(document.getElementById('map'), {
@@ -92,24 +93,37 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state,
         church = true;
       }else if(categories[i].id == 2){
         museum = true;
+      }else if(categories[i].id == 4){
+        statue = true;
       }else{
 
       }
     }
 
+    var definedRadius = $scope.distanceValue * 1000;
+
+    console.log(definedRadius);
+
     var request_churches = {
       location: $scope.position,
-      radius: $scope.distanceValue * 1000,
+      radius: definedRadius,
       query: 'igreja',
       type: 'church'
     };
 
     var request_museums = {
       location: $scope.position,
-      radius: $scope.distanceValue * 1000,
+      radius: definedRadius,
       query: 'museu',
       type: 'museum'
     };
+
+    var request_statues = {
+      location: $scope.position,
+      radius: definedRadius,
+      query: 'estátua'
+    };
+
 
     /*var request_bridges = {
       location: porto,
@@ -128,6 +142,10 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state,
     //Call text search for museums
     if(museum)
       service.textSearch(request_museums, callback);
+
+    //Call text search for museums
+    if(statue)
+      service.textSearch(request_statues, callback);
 
   }
 
@@ -187,16 +205,28 @@ function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state,
 
   $scope.filterMarkers = function (){
     clearMarkers();
+    console.log("LOCAIS");
     for(var i = 0; i < $scope.selectedLocals.length; i++){
       console.log($scope.selectedLocals[i]);
       markers.push(createMarker($scope.selectedLocals[i]));
     }
+    MapMarkers.setLocations($scope.selectedLocals);
 
     $scope.selectTabWithIndex(0);
   }
 
   $scope.showRoutes = function () {
+    for(var i = 0; i < markers.length; i++){
+      if(typeof markers[i] === "undefined"){
+        console.log("Entra!");
+        markers.splice(i, 1);
+        i--;
+      }
+    }
+    console.log("MARKERS, ANTES MAPA");
     console.log(markers);
+    console.log("LOCAIS, ANTES MAPA");
+    console.log($scope.selectedLocals);
     MapMarkers.setMarkers(markers);
     MapMarkers.setActualPosition($scope.position);
     $state.go('menu.map');
@@ -369,10 +399,17 @@ function ($scope, $stateParams) {
 
 }])
 
-.controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers) {
+.controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers, Location) {
 
+  $scope.finishedRequest = false;
   $scope.mapmarkers = MapMarkers.getMarkers();
   $scope.position = MapMarkers.getActualPosition();
+  $scope.locations = MapMarkers.getLocations();
+  console.log("MARKERS, DEPOIS MAPA");
+  console.log($scope.mapmarkers);
+  console.log("LOCAIS, DEPOIS MAPA");
+  console.log($scope.locations);
+
   $scope.waypoints = [];
   var map;
 
@@ -425,6 +462,8 @@ function ($scope, $stateParams) {
     var directionsService = new google.maps.DirectionsService;
     var directionsDisplay = new google.maps.DirectionsRenderer;
 
+    $scope.orderedLocations = MapMarkers.orderLocations($scope.waypoints, $scope.locations);
+
     map = new google.maps.Map(document.getElementById('map2'), {
       center: $scope.position,
       zoom: 15
@@ -441,7 +480,6 @@ function ($scope, $stateParams) {
           stopover: true
         });
     }
-
     directionsService.route({
       origin: $scope.position,
       destination: $scope.waypoints[$scope.waypoints.length - 1].location,
@@ -452,17 +490,38 @@ function ($scope, $stateParams) {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
         google.maps.event.trigger(map, 'resize');
+
+        $scope.data = [];
+        console.log($scope.finishedRequest);
+        console.log($scope.data);
+        for(var i = 0; i < $scope.orderedLocations.length; i++){
+          $scope.data.push({location : $scope.orderedLocations[i], waypoint : $scope.waypoints[i], route : response.routes[0].legs[i]});
+        }
+
+        $scope.finishedRequest = true;
+        console.log($scope.finishedRequest);
+        console.log($scope.data);
         var route = response.routes[0];
         var summaryPanel = document.getElementById('directions-panel');
         summaryPanel.innerHTML = '';
         // For each route, display summary information.
         for (var i = 0; i < route.legs.length; i++) {
-          var routeSegment = i + 1;
-          summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment +
+          console.log(route.legs[i]);
+          //summaryPanel.innerHTML += '<button id="locationButton ' + (i+1) + '" class="button button-block button-positive icon ion-navigate"  ng-click="">' + $scope.locations[i].name + '</button>'
+          /*summaryPanel.innerHTML += '<b>Route Segment: ' + $scope.locations[i].name +
             '</b><br>';
           summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
           summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
           summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+
+          summaryPanel.innerHTML += '<b>Steps: ' +
+            '</b><br>';
+
+          for(var j = 0; j < route.legs[i].steps.length; j++){
+            summaryPanel.innerHTML += "Step " + (j+1) + '<br>';
+            summaryPanel.innerHTML += route.legs[i].steps[j].instructions + '<br>';
+          }
+          */
         }
       } else {
         window.alert('Directions request failed due to ' + status);
@@ -470,4 +529,18 @@ function ($scope, $stateParams) {
     });
   }
 
+  $scope.openDirections = function (index){
+
+    console.log($scope.data[index]);
+  }
+
 })
+
+.controller('preferencesCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+function ($scope, $stateParams, $cordovaGeolocation, MapMarkers, Location) {
+
+  //$scope.location =
+
+}])

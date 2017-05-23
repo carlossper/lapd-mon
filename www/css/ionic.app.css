@@ -9826,6 +9826,12 @@ a.button {
   width: 100%;
   height: 70%; }
 
+#locations {
+  width: 100%;
+  height: 30%;
+  top: 70%;
+}
+
 div.search-buttons {
   background-color: white;
   position: fixed;
@@ -9838,4 +9844,12 @@ div.search-buttons {
   left: 0;
   max-width: none;
   width: 100%;
+}
+
+#locations .row {
+  padding: 0;
+}
+
+#locations button {
+  margin: 0;
 }

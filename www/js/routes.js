@@ -86,6 +86,16 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('menu.mappoint', {
+    url: '/mappoint-page',
+    views: {
+      'side-menu21': {
+        templateUrl: 'templates/mappoint.html',
+        controller: 'mappointCtrl'
+      }
+    }
+  })
+
 $urlRouterProvider.otherwise('/side-menu21/home-page')
 
 
