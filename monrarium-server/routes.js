@@ -20,7 +20,7 @@ module.exports = {
 };
 
 function createLocation(req, res, next) {
-    db.many('select name from locations where name = ${name}', req.body)
+    db.many('select location_id, name from locations where name = ${name}', req.body)
         .then(function (data) {
             res.status(200)
                 .json({
