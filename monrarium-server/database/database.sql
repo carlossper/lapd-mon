@@ -22,7 +22,7 @@ CREATE TABLE locations (
     rating VARCHAR,
     distance VARCHAR NOT NULL,
     time VARCHAR NOT NULL,
-    morada VARCHAR NOT NULL
+    address VARCHAR NOT NULL
     
 );
 
