@@ -20,12 +20,12 @@ module.exports = {
 };
 
 function createLocation(req, res, next) {
-    db.many('select name from locations where name = ${name}', req.body)
+    db.many('select id, name from locations where name = ${name}', req.body)
         .then(function (data) {
-            res.status(300)
+            res.status(200)
                 .json({
                     status: 'Erro',
-                    data: 'Localizacao ja existe',
+                    data: data,
                     message: 'Erro a inserir localizacao'
                 });
         })
