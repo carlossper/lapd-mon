@@ -40,8 +40,6 @@ angular.module('app.services', [])
         console.log(newLocations);
         return newLocations;
       }
-      return newLocations;
-    },
   };
 }])
 
@@ -64,7 +62,6 @@ angular.module('app.services', [])
       route = r;
     },
     limitRoute: function(index){
-
       var newvar = route.geocoded_waypoints.slice(index, index + 2);
       return newvar;
     },

@@ -1,429 +1,448 @@
 angular.module('app.controllers', ['app.services'])
 
-.controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', '$ionicTabsDelegate', '$state', 'MapMarkers', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+  .controller('homeCtrl', ['$scope', '$stateParams', '$cordovaGeolocation', '$ionicTabsDelegate', '$state', 'MapMarkers', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state, MapMarkers) {
-  $scope.selectedCategories = [];
-  $scope.distanceValue = 5;
-  $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Galerias de Arte"}, {id: 4, value: "Estátuas"}];
-  $scope.map;
+    function ($scope, $stateParams, $cordovaGeolocation, $ionicTabsDelegate, $state, MapMarkers) {
+      $scope.selectedCategories = [];
+      $scope.distanceValue = 5;
+      $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Galerias de Arte"}, {id: 4, value: "Estátuas"}];
+      $scope.map;
+      var filtered = false;
 
-  $scope.safeApply = function(fn) {
-    var phase = this.$root.$$phase;
-    if(phase == '$apply' || phase == '$digest') {
-      if(fn && (typeof(fn) === 'function')) {
-        fn();
+      $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+          if(fn && (typeof(fn) === 'function')) {
+            fn();
+          }
+        } else {
+          this.$apply(fn);
+        }
+      };
+
+      $scope.selectTabWithIndex = function(index) {
+        $ionicTabsDelegate.select(index);
+      };
+
+      $scope.onValueChanged = function(value){
+        $scope.selectedCategories = value;
+      };
+
+      $scope.onDistanceChanged = function(value){
+        $scope.distanceValue = value;
+      };
+
+      $scope.searchClick = function () {
+        $scope.places = [];
+        $scope.initMap($scope.selectedCategories);
+      };
+
+      $scope.clearAll = function() {
+        $scope.selectedCategories = [];
+        $scope.distanceValue = 5;
+        $scope.places = [];
+        clearMarkers();
+        angular.element(document.querySelector('#map')).empty();
+        $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}, {id: 4, value: "Estátuas"}];
+        $scope.safeApply();
+      };
+
+      $scope.selectedLocals = [];
+
+      $scope.clickedLocals = function (member) {
+        var index = $scope.selectedLocals.indexOf(member);
+        if (index > -1) {
+          $scope.selectedLocals.splice(index, 1);
+          member.selected = false;
+        } else {
+          $scope.selectedLocals.push(member);
+          member.selected = true;
+        }
+      };
+
+      var infowindow;
+      $scope.markers = [];
+
+      var options = {timeout: 10000, enableHighAccuracy: true};
+
+      $cordovaGeolocation.getCurrentPosition(options).then(function(position){
+
+        $scope.position = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+      }, function(error){
+        console.log("Could not get location");
+      });
+
+
+      $scope.initMap = function (categories) {
+        var church = false;
+        var museum = false;
+        var art = false;
+        var statue = false;
+        var other = false;
+
+        $scope.map = new google.maps.Map(document.getElementById('map'), {
+          center: $scope.position,
+          zoom: 14
+        });
+
+        var marker = new google.maps.Marker({
+          map: $scope.map,
+          position: $scope.position,
+          icon: 'img/marker.png'
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent("Você está aqui!");
+          infowindow.open($scope.map, this);
+        });
+
+        for(var i = 0; i < categories.length; i++){
+          if(categories[i].id == 1){
+            church = true;
+          }else if(categories[i].id == 2){
+            museum = true;
+          }else if(categories[i].id == 3){
+            art = true;
+          }else if(categories[i].id == 4){
+            statue = true;
+          }else{
+
+          }
+        }
+
+        var definedRadius = $scope.distanceValue * 1000;
+
+        var request_churches = {
+          location: $scope.position,
+          radius: definedRadius,
+          query: 'igreja',
+          type: 'church'
+        };
+
+        var request_museums = {
+          location: $scope.position,
+          radius: definedRadius,
+          query: 'museu',
+          type: 'museum'
+        };
+
+        var request_art = {
+          location: $scope.position,
+          radius: 5000,
+          query: 'arte',
+          type: 'art_gallery'
+        };
+
+        var request_statues = {
+          location: $scope.position,
+          radius: definedRadius,
+          query: 'estátua'
+        };
+
+
+        infowindow = new google.maps.InfoWindow({maxWidth : 150});
+        var service = new google.maps.places.PlacesService($scope.map);
+
+        //Call text search for churches
+        if(church)
+          service.textSearch(request_churches, callback);
+
+        //Call text search for museums
+        if(museum)
+          service.textSearch(request_museums, callback);
+
+        //Call text search for statues
+        if(art)
+          service.textSearch(request_art, callback);
+
+        //Call text search for statues
+        if(statue)
+          service.textSearch(request_statues, callback);
+
+      };
+
+      function callback(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          for (var i = 0; i < results.length; i++) {
+            if(results[i].photos != null){
+              var place = {
+                name: results[i].name,
+                rating: results[i].rating,
+                photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300}),
+                location: results[i].geometry.location
+              };
+            }
+            else{
+              var place = {
+                name: results[i].name,
+                rating: results[i].rating,
+                photo: 'img/no_photo.png',
+                location: results[i].geometry.location
+              };
+            }
+            $scope.places.push(place);
+            createMarker(place);
+          }
+          $scope.$apply();
+        }
       }
-    } else {
-      this.$apply(fn);
-    }
-  };
 
-  $scope.selectTabWithIndex = function(index) {
-    $ionicTabsDelegate.select(index);
-  };
+      function createMarker(place) {
+        var placeLoc = place.location;
+        var marker = new google.maps.Marker({
+          map: $scope.map,
+          position: placeLoc
+        });
 
-  $scope.onValueChanged = function(value){
-    $scope.selectedCategories = value;
-  };
-
-  $scope.onDistanceChanged = function(value){
-    $scope.distanceValue = value;
-  };
-
-  $scope.searchClick = function () {
-    $scope.places = [];
-    $scope.initMap($scope.selectedCategories);
-  };
-
-  $scope.clearAll = function() {
-    $scope.selectedCategories = [];
-    $scope.distanceValue = 5;
-    $scope.places = [];
-    clearMarkers();
-    angular.element(document.querySelector('#map')).empty();
-    $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}, {id: 4, value: "Estátuas"}];
-    $scope.safeApply();
-  };
-
-  $scope.selectedLocals = [];
-
-  $scope.clickedLocals = function (member) {
-    var index = $scope.selectedLocals.indexOf(member);
-    if (index > -1) {
-      $scope.selectedLocals.splice(index, 1);
-      member.selected = false;
-    } else {
-      $scope.selectedLocals.push(member);
-      member.selected = true;
-    }
-  };
-
-  var infowindow;
-  var markers = [];
-
-  var options = {timeout: 10000, enableHighAccuracy: true};
-
-  $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-
-    $scope.position = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
-  }, function(error){
-    console.log("Could not get location");
-  });
-
-
-  $scope.initMap = function (categories) {
-    var church = false;
-    var museum = false;
-    var art = false;
-    var statue = false;
-    var other = false;
-
-    $scope.map = new google.maps.Map(document.getElementById('map'), {
-      center: $scope.position,
-      zoom: 14
-    });
-
-    var marker = new google.maps.Marker({
-      map: $scope.map,
-      position: $scope.position,
-      icon: 'img/marker.png'
-    });
-
-    google.maps.event.addListener(marker, 'click', function() {
-      infowindow.setContent("Você está aqui!");
-      infowindow.open($scope.map, this);
-    });
-
-    for(var i = 0; i < categories.length; i++){
-      if(categories[i].id == 1){
-        church = true;
-      }else if(categories[i].id == 2){
-        museum = true;
-      }else if(categories[i].id == 3){
-        art = true;
-      }else if(categories[i].id == 4){
-        statue = true;
-      }else{
-
+        $scope.markers.push(marker);
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent('<div class="map-marker"><img border="0" align="left" src="' + place.photo + '"></div><b>' + place.name + '</b>');
+          infowindow.open($scope.map, this);
+        });
       }
-    }
 
-    var definedRadius = $scope.distanceValue * 1000;
+      // Sets the map on all markers in the array.
+      function setMapOnAll(map) {
+        for (var i = 0; i < $scope.markers.length; i++) {
+          $scope.markers[i].setMap(map);
+        }
+      }
 
-    var request_churches = {
-      location: $scope.position,
-      radius: definedRadius,
-      query: 'igreja',
-      type: 'church'
-    };
+      // Removes the markers from the map, but keeps them in the array.
+      function clearMarkers() {
+        for(var i = 0; i < $scope.markers.length; i++){
+          if(typeof $scope.markers[i] === "undefined"){
+            $scope.markers.splice(i, 1);
+            i--;
+          }
+        }
+        setMapOnAll(null);
+        $scope.markers.length = 0;
+      }
 
-    var request_museums = {
-      location: $scope.position,
-      radius: definedRadius,
-      query: 'museu',
-      type: 'museum'
-    };
-
-    var request_art = {
-      location: $scope.position,
-      radius: 5000,
-      query: 'arte',
-      type: 'art_gallery'
-    };
-
-    var request_statues = {
-      location: $scope.position,
-      radius: definedRadius,
-      query: 'estátua'
-    };
-
-
-    infowindow = new google.maps.InfoWindow({maxWidth : 150});
-    var service = new google.maps.places.PlacesService($scope.map);
-
-    //Call text search for churches
-    if(church)
-      service.textSearch(request_churches, callback);
-
-    //Call text search for museums
-    if(museum)
-      service.textSearch(request_museums, callback);
-
-    //Call text search for statues
-    if(art)
-      service.textSearch(request_art, callback);
-
-    //Call text search for statues
-    if(statue)
-      service.textSearch(request_statues, callback);
-
-  };
-
-  function callback(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      for (var i = 0; i < results.length; i++) {
-        if(results[i].photos != null){
-          var place = {
-            name: results[i].name,
-            rating: results[i].rating,
-            photo: results[i].photos[0].getUrl({'maxWidth': 300, 'maxHeight': 300}),
-            location: results[i].geometry.location
-          };
+      $scope.filterMarkers = function (){
+        filtered = true;
+        if($scope.selectedLocals.length > 0) {
+          clearMarkers();
+          for (var i = 0; i < $scope.selectedLocals.length; i++) {
+            $scope.markers.push(createMarker($scope.selectedLocals[i]));
+          }
+          MapMarkers.setLocations($scope.selectedLocals);
         }
         else{
-          var place = {
-            name: results[i].name,
-            rating: results[i].rating,
-            photo: 'img/no_photo.png',
-            location: results[i].geometry.location
-          };
+          clearMarkers();
+          for (var i = 0; i < $scope.places.length; i++) {
+            $scope.markers.push(createMarker($scope.places[i]));
+          }
         }
-        $scope.places.push(place);
-        createMarker(place);
+
+        $scope.selectTabWithIndex(0);
       }
-      $scope.$apply();
-    }
-  }
 
-  function createMarker(place) {
-    var placeLoc = place.location;
-    var marker = new google.maps.Marker({
-      map: $scope.map,
-      position: placeLoc
-    });
+      $scope.showRoutes = function () {
+        if (!filtered){
+          clearMarkers();
+          for (var i = 0; i < $scope.selectedLocals.length; i++) {
+            $scope.markers.push(createMarker($scope.selectedLocals[i]));
+          }
+          MapMarkers.setLocations($scope.selectedLocals);
+        }
+        else{
+          filtered = false;
+        }
 
-    markers.push(marker);
-    google.maps.event.addListener(marker, 'click', function() {
-      infowindow.setContent('<div class="map-marker"><img border="0" align="left" src="' + place.photo + '"></div><b>' + place.name + '</b>');
-      infowindow.open($scope.map, this);
-    });
-  }
+        for(var i = 0; i < $scope.markers.length; i++){
+          if(typeof $scope.markers[i] === "undefined"){
+            $scope.markers.splice(i, 1);
+            i--;
+          }
+        }
+        MapMarkers.setMarkers($scope.markers);
+        MapMarkers.setActualPosition($scope.position);
 
-  // Sets the map on all markers in the array.
-  function setMapOnAll(map) {
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
-    }
-  }
-
-  // Removes the markers from the map, but keeps them in the array.
-  function clearMarkers() {
-    setMapOnAll(null);
-    markers = [];
-  }
-
-  $scope.filterMarkers = function (){
-    clearMarkers();
-    for(var i = 0; i < $scope.selectedLocals.length; i++){
-      markers.push(createMarker($scope.selectedLocals[i]));
-    }
-    MapMarkers.setLocations($scope.selectedLocals);
-
-    $scope.selectTabWithIndex(0);
-  }
-
-  $scope.showRoutes = function () {
-    clearMarkers();
-    for(var i = 0; i < $scope.selectedLocals.length; i++){
-      markers.push(createMarker($scope.selectedLocals[i]));
-    }
-    MapMarkers.setLocations($scope.selectedLocals);
-
-    for(var i = 0; i < markers.length; i++){
-      if(typeof markers[i] === "undefined"){
-        markers.splice(i, 1);
-        i--;
+        if($scope.selectedLocals.length > 0)
+          $state.go('menu.map');
       }
-    }
-    MapMarkers.setMarkers(markers);
-    MapMarkers.setActualPosition($scope.position);
-    $state.go('menu.map');
-  }
 
-}])
+    }])
 
-.controller('cloudCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+  .controller('cloudCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+    function ($scope, $stateParams) {
 
 
-}])
+    }])
 
-.controller('menuCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+  .controller('menuCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope) {
-  $scope.hideSignupLogin = function() {
-    var logged = sessionStorage.getItem('logged');
-    if(logged == null) {
-      $scope.showSignup = true;
-      $scope.showLogin = true;
-    }
-    else {
-      $scope.showSignup = false;
-      $scope.showLogin = false;
-    }
-  };
-}])
-
-.controller('signupCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
-// You can include any angular dependencies as parameters for this function
-// TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
-
-    $scope.signup=function(data) {
-      var link ="http://monrarium.herokuapp.com/api/users/"
-      $http.post(link, {name: data.name, username:data.username, password:data.password })
-        .then(function (res) {
-          $scope.response = res.data.status;
-
-          if($scope.response=="Successo") {
-            $scope.title="Account Created!";
-            $scope.template="Your account has been successfully created!";
-
-            $ionicHistory.nextViewOptions({
-              disableAnimate: true,
-              disableBack:true
-            });
-
-            $state.go('menu.login', {}, {location: "replace", reload: true});
-          }
-          else {
-            $scope.title="Erro";
-            $scope.template="Username ja existe!";
-          }
-          var alertPopup = $ionicPopup.alert({
-            title: $scope.title,
-            template: $scope.template
-          });
-        })
-    }
-
-}])
-
-.controller('loginCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
-// You can include any angular dependencies as parameters for this function
-// TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
-
-  $scope.login=function(data) {
-    var link ="http://monrarium.herokuapp.com/api/users"
-    $http.get(link+"?username="+data.username+"&password="+data.password)
-      .then(function (res) {
-        $scope.response = res.data.status;
-
-        if($scope.response=="Sucesso") {
-          $scope.title="Logged in!";
-          $scope.template="Fez log in com sucesso!";
-          sessionStorage.setItem('user_id', res.data.data[0].user_id);
-          sessionStorage.setItem('name', res.data.data[0].name);
-          sessionStorage.setItem('username', res.data.data[0].username);
-          sessionStorage.setItem('logged', true);
-
-
-          $ionicHistory.nextViewOptions({
-            disableAnimate: true,
-            disableBack:true
-          });
-
-          $state.go('menu.home', {}, {location: "replace", reload: true});
+    function ($scope) {
+      $scope.hideSignupLogin = function() {
+        var logged = sessionStorage.getItem('logged');
+        if(logged == null) {
+          $scope.showSignup = true;
+          $scope.showLogin = true;
         }
         else {
-          $scope.title="Erro";
-          $scope.template="Utilizador/Password errados";
+          $scope.showSignup = false;
+          $scope.showLogin = false;
         }
-        var alertPopup = $ionicPopup.alert({
-          title: $scope.title,
-          template: $scope.template
-        });
-      })
-  }
-}])
+      };
+    }])
 
-.controller('myProfileCtrl', ['$scope', '$stateParams','$rootScope','$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+  .controller('signupCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function($scope,$stateParams, $rootScope,$ionicHistory,$state) {
+    function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
 
-  $scope.logout=function(){
+      $scope.signup=function(data) {
+        var link ="http://monrarium.herokuapp.com/api/users/"
+        $http.post(link, {name: data.name, username:data.username, password:data.password })
+          .then(function (res) {
+            $scope.response = res.data.status;
 
-    //delete all the sessions
-    delete sessionStorage.user_id;
-    delete sessionStorage.username;
-    delete sessionStorage.name;
-    delete sessionStorage.logged;
+            if($scope.response=="Successo") {
+              $scope.title="Account Created!";
+              $scope.template="Your account has been successfully created!";
 
-    // remove the profile page backlink after logout.
-    $ionicHistory.nextViewOptions({
-      disableAnimate: true,
-      disableBack: true
-    });
+              $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack:true
+              });
 
-    // After logout you will be redirected to the menu page,with no backlink
-    $state.go('menu.home', {}, {location: "replace", reload: true});
-  };
-
-}])
-
-.controller('editProfileCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
-// You can include any angular dependencies as parameters for this function
-// TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
-  $scope.$on('$ionicView.enter', function() {
-    var logged = sessionStorage.getItem('logged');
-    $scope.user_id= sessionStorage.getItem('user_id');
-    $scope.name= sessionStorage.getItem('name');
-    $scope.username= sessionStorage.getItem('username');
-    if(logged == null) {
-      $state.go('menu.login', {}, {location: "replace", reload: true});
-    }
-  });
-  console.log($scope.user_id);
-  console.log($scope.name);
-  console.log($scope.username);
-    $scope.edit = function (data) {
-      var link = "http://monrarium.herokuapp.com/api/users/"
-      $http.put(link + $scope.user_id, {name: data.name, username: $scope.username})
-        .then(function (res) {
-          $scope.response = res.data.status;
-          console.log($scope.response);
-
-          if ($scope.response == "Sucesso") {
-            $scope.title = "Nome editado com sucesso!";
-            $scope.template = "O seu nome foi editado com sucesso!";
-            sessionStorage.setItem('name', data.name);
-
-            $ionicHistory.nextViewOptions({
-              disableAnimate: true,
-              disableBack: true
+              $state.go('menu.login', {}, {location: "replace", reload: true});
+            }
+            else {
+              $scope.title="Erro";
+              $scope.template="Username ja existe!";
+            }
+            var alertPopup = $ionicPopup.alert({
+              title: $scope.title,
+              template: $scope.template
             });
+          })
+      }
 
-            $state.go('menu.myProfile', {}, {location: "replace", reload: true});
-          }
-          else {
-            $scope.title = "Erro";
-            $scope.template = "Não foi possivel editar o nome!";
-          }
-          var alertPopup = $ionicPopup.alert({
-            title: $scope.title,
-            template: $scope.template
-          });
-        })
-    }
+    }])
 
-}])
-
-.controller('preferencesCtrl', ['$scope', '$stateParams', 'MapMarkers', 'Location', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+  .controller('loginCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+    function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
+
+      $scope.login=function(data) {
+        var link ="http://monrarium.herokuapp.com/api/users"
+        $http.get(link+"?username="+data.username+"&password="+data.password)
+          .then(function (res) {
+            $scope.response = res.data.status;
+
+            if($scope.response=="Sucesso") {
+              $scope.title="Logged in!";
+              $scope.template="Fez log in com sucesso!";
+              sessionStorage.setItem('user_id', res.data.data[0].user_id);
+              sessionStorage.setItem('name', res.data.data[0].name);
+              sessionStorage.setItem('username', res.data.data[0].username);
+              sessionStorage.setItem('logged', true);
 
 
-}])
+              $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack:true
+              });
+
+              $state.go('menu.home', {}, {location: "replace", reload: true});
+            }
+            else {
+              $scope.title="Erro";
+              $scope.template="Utilizador/Password errados";
+            }
+            var alertPopup = $ionicPopup.alert({
+              title: $scope.title,
+              template: $scope.template
+            });
+          })
+      }
+    }])
+
+  .controller('myProfileCtrl', ['$scope', '$stateParams','$rootScope','$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+    function($scope,$stateParams, $rootScope,$ionicHistory,$state) {
+
+      $scope.logout=function(){
+
+        //delete all the sessions
+        delete sessionStorage.user_id;
+        delete sessionStorage.username;
+        delete sessionStorage.name;
+        delete sessionStorage.logged;
+
+        // remove the profile page backlink after logout.
+        $ionicHistory.nextViewOptions({
+          disableAnimate: true,
+          disableBack: true
+        });
+
+        // After logout you will be redirected to the menu page,with no backlink
+        $state.go('menu.home', {}, {location: "replace", reload: true});
+      };
+
+    }])
+
+  .controller('editProfileCtrl', ['$scope', '$stateParams', '$http', '$ionicPopup', '$ionicHistory','$state', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+    function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
+      $scope.$on('$ionicView.enter', function() {
+        var logged = sessionStorage.getItem('logged');
+        $scope.user_id= sessionStorage.getItem('user_id');
+        $scope.name= sessionStorage.getItem('name');
+        $scope.username= sessionStorage.getItem('username');
+        if(logged == null) {
+          $state.go('menu.login', {}, {location: "replace", reload: true});
+        }
+      });
+      $scope.edit = function (data) {
+        var link = "http://monrarium.herokuapp.com/api/users/"
+        $http.put(link + $scope.user_id, {name: data.name, username: $scope.username})
+          .then(function (res) {
+            $scope.response = res.data.status;
+
+            if ($scope.response == "Sucesso") {
+              $scope.title = "Nome editado com sucesso!";
+              $scope.template = "O seu nome foi editado com sucesso!";
+              sessionStorage.setItem('name', data.name);
+
+              $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack: true
+              });
+
+              $state.go('menu.myProfile', {}, {location: "replace", reload: true});
+            }
+            else {
+              $scope.title = "Erro";
+              $scope.template = "Não foi possivel editar o nome!";
+            }
+            var alertPopup = $ionicPopup.alert({
+              title: $scope.title,
+              template: $scope.template
+            });
+          })
+      }
+
+    }])
+
+  .controller('preferencesCtrl', ['$scope', '$stateParams', 'MapMarkers', 'Location', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+    function ($scope, $stateParams) {
+
+
+    }])
   .controller('myRoutesCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
@@ -431,130 +450,130 @@ function ($scope, $stateParams) {
 
 
     }])
-.controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers, Location) {
+  .controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers, Location) {
 
-  $scope.mapmarkers = MapMarkers.getMarkers();
-  $scope.position = MapMarkers.getActualPosition();
-  $scope.locations = MapMarkers.getLocations();
-  $scope.waypoints = [];
+    $scope.mapmarkers = MapMarkers.getMarkers();
+    $scope.position = MapMarkers.getActualPosition();
+    $scope.locations = MapMarkers.getLocations();
+    $scope.waypoints = [];
 
-  var map;
-  var origin1 = $scope.position;
-  var destinations = [];
+    var map;
+    var origin1 = $scope.position;
+    var destinations = [];
 
-  for(var i = 0; i < $scope.mapmarkers.length; i++){
-    if(typeof $scope.mapmarkers[i] !== 'undefined')
-      destinations.push($scope.mapmarkers[i].position);
-  }
+    for(var i = 0; i < $scope.mapmarkers.length; i++){
+      if(typeof $scope.mapmarkers[i] !== 'undefined')
+        destinations.push($scope.mapmarkers[i].position);
+    }
 
-  var service = new google.maps.DistanceMatrixService();
+    var service = new google.maps.DistanceMatrixService();
 
-  service.getDistanceMatrix(
-    {
-      origins: [origin1],
-      destinations: destinations,
-      travelMode: 'WALKING',
-      unitSystem: google.maps.UnitSystem.METRIC,
-      avoidHighways: false,
-      avoidTolls: false,
-    }, callback);
+    service.getDistanceMatrix(
+      {
+        origins: [origin1],
+        destinations: destinations,
+        travelMode: 'WALKING',
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false,
+      }, callback);
 
-  //Callback function to get waypoints
-  function callback(response, status) {
-    if (status == 'OK') {
-      var origins = response.originAddresses;
+    //Callback function to get waypoints
+    function callback(response, status) {
+      if (status == 'OK') {
+        var origins = response.originAddresses;
 
-      for (var i = 0; i < origins.length; i++) {
-        var results = response.rows[i].elements;
-        for (var j = 0; j < results.length; j++) {
-          var element = {
-            location: destinations[j],
-            distanceText: results[j].distance.text,
-            distance: results[j].distance.value,
-            durationText: results[j].duration.text,
-            duration: results[j].duration.value};
-          $scope.waypoints.push(element);
+        for (var i = 0; i < origins.length; i++) {
+          var results = response.rows[i].elements;
+          for (var j = 0; j < results.length; j++) {
+            var element = {
+              location: destinations[j],
+              distanceText: results[j].distance.text,
+              distance: results[j].distance.value,
+              durationText: results[j].duration.text,
+              duration: results[j].duration.value};
+            $scope.waypoints.push(element);
+          }
+          $scope.waypoints.sort(function(a, b){return a.distance-b.distance});
         }
-        $scope.waypoints.sort(function(a, b){return a.distance-b.distance});
+      }
+      initMap();
+    }
+
+    //Initialize map
+    function initMap() {
+      var directionsService = new google.maps.DirectionsService;
+      var directionsDisplay = new google.maps.DirectionsRenderer;
+
+      //Order locations
+      $scope.orderedLocations = MapMarkers.orderLocations($scope.waypoints, $scope.locations);
+
+      map = new google.maps.Map(document.getElementById('map2'), {
+        center: $scope.position,
+        zoom: 15
+      });
+      directionsDisplay.setMap(map);
+      calculateAndDisplayRoute(directionsService, directionsDisplay);
+
+      //Define data to use in view
+      $scope.data = [];
+      for(var i = 0; i < $scope.orderedLocations.length; i++){
+        $scope.data.push({location : $scope.orderedLocations[i], waypoint : $scope.waypoints[i]});
       }
     }
-    initMap();
-  }
 
-  //Initialize map
-  function initMap() {
-    var directionsService = new google.maps.DirectionsService;
-    var directionsDisplay = new google.maps.DirectionsRenderer;
-
-    //Order locations
-    $scope.orderedLocations = MapMarkers.orderLocations($scope.waypoints, $scope.locations);
-
-    map = new google.maps.Map(document.getElementById('map2'), {
-      center: $scope.position,
-      zoom: 15
-    });
-    directionsDisplay.setMap(map);
-    calculateAndDisplayRoute(directionsService, directionsDisplay);
-
-    //Define data to use in view
-    $scope.data = [];
-    for(var i = 0; i < $scope.orderedLocations.length; i++){
-      $scope.data.push({location : $scope.orderedLocations[i], waypoint : $scope.waypoints[i]});
-    }
-  }
-
-  //Calculate routes
-  function calculateAndDisplayRoute(directionsService, directionsDisplay) {
-    var waypts = [];
-    for (var i = 0; i < $scope.waypoints.length - 1; i++) {
+    //Calculate routes
+    function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+      var waypts = [];
+      for (var i = 0; i < $scope.waypoints.length - 1; i++) {
         waypts.push({
           location: $scope.waypoints[i].location,
           stopover: true
         });
-    }
-    directionsService.route({
-      origin: $scope.position,
-      destination: $scope.waypoints[$scope.waypoints.length - 1].location,
-      waypoints: waypts,
-      optimizeWaypoints: true,
-      travelMode: 'WALKING'
-    }, function(response, status) {
-      if (status === 'OK') {
-        directionsDisplay.setDirections(response);
-        google.maps.event.trigger(map, 'resize');
-
-        $scope.routes = response;
-        $scope.$apply();
-
-      } else {
-        window.alert('Directions request failed due to ' + status);
       }
-    });
-  }
+      directionsService.route({
+        origin: $scope.position,
+        destination: $scope.waypoints[$scope.waypoints.length - 1].location,
+        waypoints: waypts,
+        optimizeWaypoints: true,
+        travelMode: 'WALKING'
+      }, function(response, status) {
+        if (status === 'OK') {
+          directionsDisplay.setDirections(response);
+          google.maps.event.trigger(map, 'resize');
 
-  //Button click for show directions
-  $scope.openDirections = function (index){
-    //Set data
-    Location.setData($scope.data[index]);
-    Location.setRoute($scope.routes);
-    Location.setIndex(index);
+          $scope.routes = response;
+          $scope.$apply();
 
-    //Change view
-    $state.go('menu.mappoint');
-  }
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      });
+    }
 
-})
+    //Button click for show directions
+    $scope.openDirections = function (index){
+      //Set data
+      Location.setData($scope.data[index]);
+      Location.setRoute($scope.routes);
+      Location.setIndex(index);
 
-.controller('mappointCtrl', ['$scope', '$stateParams', 'Location',
-function ($scope, $stateParams, Location) {
-  $scope.showList = false;
+      //Change view
+      $state.go('menu.mappoint');
+    }
 
-  //Display directions
-  var directionsDisplay = new google.maps.DirectionsRenderer();
-  $scope.route = Location.getRoute();
-  directionsDisplay.setDirections($scope.route);
-  directionsDisplay.setPanel(document.getElementById('directionsList'));
+  })
 
-  $scope.showList = true;
+  .controller('mappointCtrl', ['$scope', '$stateParams', 'Location',
+    function ($scope, $stateParams, Location) {
+      $scope.showList = false;
 
-}])
+      //Display directions
+      var directionsDisplay = new google.maps.DirectionsRenderer();
+      $scope.route = Location.getRoute();
+      directionsDisplay.setDirections($scope.route);
+      directionsDisplay.setPanel(document.getElementById('directionsList'));
+
+      $scope.showList = true;
+
+    }])
