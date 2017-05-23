@@ -1,0 +1,17 @@
+<ion-view title="Edit Profile" id="page9">
+  <ion-content padding="true" class="has-header">
+    <form id="signup-form1" class="list">
+      <ion-list id="signup-list2">
+        <label class="item item-input" id="signup-input1">
+          <span class="input-label">Name</span>
+          <input type="text" ng-model="data.name" placeholder={{name}}>
+        </label>
+        <label class="item item-input" id="signup-input2">
+          <span class="input-label">Username</span>
+          <input type="text" ng-model="data.username" placeholder={{username}} readonly>
+        </label>
+      </ion-list>
+      <button id="signup-button1" ng-click="edit(data)" class="button button-stable  button-block">Edit</button>
+    </form>
+  </ion-content>
+</ion-view>

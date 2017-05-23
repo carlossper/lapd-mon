@@ -27,6 +27,7 @@ angular.module('app.routes', [])
   })
 
   .state('menu.signup', {
+    cache: false,
     url: '/signup-page',
     views: {
       'side-menu21': {
@@ -37,6 +38,7 @@ angular.module('app.routes', [])
   })
 
   .state('menu.login', {
+    cache: false,
     url: '/login-page',
     views: {
       'side-menu21': {
@@ -68,6 +70,7 @@ angular.module('app.routes', [])
 
   .state('menu.preferences', {
     url: '/preferences',
+
     views: {
       'side-menu21': {
         templateUrl: 'templates/preferences.html',
@@ -86,6 +89,15 @@ angular.module('app.routes', [])
     }
   })
 
+    .state('menu.routes', {
+      url: '/my-routes',
+      views: {
+        'side-menu21': {
+          templateUrl: 'templates/myRoutes.html',
+          controller: 'myRoutes'
+        }
+      }
+    })
   .state('menu.mappoint', {
     url: '/mappoint-page',
     views: {
