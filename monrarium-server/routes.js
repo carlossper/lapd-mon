@@ -30,8 +30,8 @@ function createLocation(req, res, next) {
                 });
         })
         .catch(function (err) {
-            db.one('insert into locations(name, rating, distance,time, address)' +
-                'values(${name}, ${rating}, ${distance} , ${time} , ${address}) returning location_id',
+            db.one('insert into locations(name, rating, distance,time)' +
+                'values(${name}, ${rating}, ${distance} , ${time}) returning location_id',
                 req.body)
                 .then(function (data) {
                     res.status(200)
@@ -46,7 +46,7 @@ function createLocation(req, res, next) {
 
 function getLocation(req, res, next) {
     var location_id = parseInt(req.params.id);
-    db.many('select name,rating,distance,time, address from locations where location_id = $1', location_id)
+    db.many('select name,rating,distance,time from locations where location_id = $1', location_id)
         .then(function (data) {
             res.status(200)
                 .json({
@@ -91,7 +91,7 @@ function createRoute(req, res, next) {
 
 function getRoutes(req, res, next) {
     var user_id = parseInt(req.params.id);
-    db.many('select r.route_id,l.name,l.rating,l.distance,l.time,l.address from locations l,routes r,route_location rl where r.user_id = $1 and r.route_id = rl.route_id and l.location_id = rl.location_id', user_id)
+    db.many('select r.route_id,l.name,l.rating,l.distance,l.time from locations l,routes r,route_location rl where r.user_id = $1 and r.route_id = rl.route_id and l.location_id = rl.location_id', user_id)
         .then(function (data) {
             res.status(200)
                 .json({
