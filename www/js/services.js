@@ -36,29 +36,39 @@ angular.module('app.services', [])
           }
         }
       }
-      console.log("ORDERNADO");
-      console.log(newLocations);
       return newLocations;
-    }
+    },
   };
 }])
 
 .factory('Location', [function(){
-  var location;
-  var marker;
+  var data = [];
+  var route = [];
+  var index;
 
   return{
-    getLocation: function () {
-      return location;
+    getData: function () {
+      return data;
     },
-    setLocation: function (l) {
-      location = l;
+    setData: function (d) {
+      data = d;
     },
-    getMarker: function () {
-      return marker;
+    getRoute: function () {
+      return route;
     },
-    setMarker: function(m){
-      marker = m;
+    setRoute: function(r){
+      route = r;
+    },
+    limitRoute: function(index){
+
+      var newvar = route.geocoded_waypoints.slice(index, index + 2);
+      return newvar;
+    },
+    getIndex: function () {
+      return index;
+    },
+    setIndex: function(i){
+      index = i;
     }
   };
 }])
