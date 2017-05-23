@@ -40,28 +40,39 @@ angular.module('app.services', [])
         console.log(newLocations);
         return newLocations;
       }
-    };
-  }])
+  };
+}])
 
-  .factory('Location', [function(){
-    var location;
-    var marker;
+.factory('Location', [function(){
+  var data = [];
+  var route = [];
+  var index;
 
-    return{
-      getLocation: function () {
-        return location;
-      },
-      setLocation: function (l) {
-        location = l;
-      },
-      getMarker: function () {
-        return marker;
-      },
-      setMarker: function(m){
-        marker = m;
-      }
-    };
-  }])
+  return{
+    getData: function () {
+      return data;
+    },
+    setData: function (d) {
+      data = d;
+    },
+    getRoute: function () {
+      return route;
+    },
+    setRoute: function(r){
+      route = r;
+    },
+    limitRoute: function(index){
+      var newvar = route.geocoded_waypoints.slice(index, index + 2);
+      return newvar;
+    },
+    getIndex: function () {
+      return index;
+    },
+    setIndex: function(i){
+      index = i;
+    }
+  };
+}])
 
   .service('BlankService', [function(){
 
