@@ -232,7 +232,7 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
           $scope.response = res.data.status;
           console.log($scope.response);
 
-          if($scope.response=="Success") {
+          if($scope.response=="Successo") {
             $scope.title="Account Created!";
             $scope.template="Your account has been successfully created!";
 
@@ -244,8 +244,8 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
             $state.go('menu.login', {}, {location: "replace", reload: true});
           }
           else {
-            $scope.title="Failed";
-            $scope.template="Username already exists";
+            $scope.title="Erro";
+            $scope.template="Username ja existe!";
           }
           var alertPopup = $ionicPopup.alert({
             title: $scope.title,
@@ -268,9 +268,9 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
         $scope.response = res.data.status;
         console.log($scope.response);
 
-        if($scope.response=="success") {
+        if($scope.response=="Sucesso") {
           $scope.title="Logged in!";
-          $scope.template="You have successfully logged in!";
+          $scope.template="Fez log in com sucesso!";
           sessionStorage.setItem('user_id', res.data.data[0].user_id);
           sessionStorage.setItem('name', res.data.data[0].name);
           sessionStorage.setItem('username', res.data.data[0].username);
@@ -284,8 +284,8 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
           $state.go('menu.home', {}, {location: "replace", reload: true});
         }
         else {
-          $scope.title="Failed";
-          $scope.template="Wrong username/password";
+          $scope.title="Erro";
+          $scope.template="Utilizador/Password errados";
         }
         var alertPopup = $ionicPopup.alert({
           title: $scope.title,
@@ -326,37 +326,40 @@ function ($scope, $stateParams, $http, $ionicPopup, $ionicHistory,$state) {
   $scope.user_id= sessionStorage.getItem('user_id');
   $scope.name= sessionStorage.getItem('name');
   $scope.username= sessionStorage.getItem('username');
+  if (sessionStorage.length != 0) {
+    $scope.edit = function (data) {
+      var link = "http://monrarium.herokuapp.com/api/users/"
+      $http.put(link + $scope.user_id, {name: data.name, username: $scope.username})
+        .then(function (res) {
+          $scope.response = res.data.status;
+          console.log($scope.response);
 
-  $scope.edit=function(data) {
-    var link ="http://monrarium.herokuapp.com/api/users/"
-    $http.put(link+$scope.user_id, {name: data.name, username:$scope.username })
-      .then(function (res) {
-        $scope.response = res.data.status;
-        console.log($scope.response);
+          if ($scope.response == "Sucesso") {
+            $scope.title = "Nome editado com sucesso!";
+            $scope.template = "O seu nome foi editado com sucesso!";
+            sessionStorage.setItem('name', data.name);
 
-        if($scope.response=="success") {
-          $scope.title="Name successfully edited!";
-          $scope.template="Your name has been successfully edited!";
-          sessionStorage.setItem('name', data.name);
+            $ionicHistory.nextViewOptions({
+              disableAnimate: true,
+              disableBack: true
+            });
 
-          $ionicHistory.nextViewOptions({
-            disableAnimate: true,
-            disableBack:true
+            $state.go('menu.myProfile', {}, {location: "replace", reload: true});
+          }
+          else {
+            $scope.title = "Erro";
+            $scope.template = "Não foi possivel editar o nome!";
+          }
+          var alertPopup = $ionicPopup.alert({
+            title: $scope.title,
+            template: $scope.template
           });
-
-          $state.go('menu.myProfile', {}, {location: "replace", reload: true});
-        }
-        else {
-          $scope.title="Failed";
-          $scope.template="Couldn't edit name!";
-        }
-        var alertPopup = $ionicPopup.alert({
-          title: $scope.title,
-          template: $scope.template
-        });
-      })
+        })
+    }
   }
-
+  else {
+    $state.go('menu.login', {}, {location: "replace", reload: true});
+  }
 
 
 }])
@@ -368,7 +371,13 @@ function ($scope, $stateParams) {
 
 
 }])
+  .controller('myRoutesCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+    function ($scope, $stateParams) {
 
+
+    }])
 .controller('mapCtrl', function($scope, $state, $cordovaGeolocation, MapMarkers) {
 
   $scope.mapmarkers = MapMarkers.getMarkers();

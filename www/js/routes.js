@@ -86,6 +86,15 @@ angular.module('app.routes', [])
     }
   })
 
+    .state('menu.routes', {
+      url: '/my-routes',
+      views: {
+        'side-menu21': {
+          templateUrl: 'templates/myRoutes.html',
+          controller: 'myRoutes'
+        }
+      }
+    })
 $urlRouterProvider.otherwise('/side-menu21/home-page')
 
 
