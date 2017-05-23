@@ -79,7 +79,7 @@ function createRoute(req, res, next) {
             res.status(200)
                 .json({
                     status: 'Sucesso',
-                    data: req.body.location_id.length,
+                    data: 'Rota inserida com sucesso',
                     message: 'Rota inserida'
                 });
         })
