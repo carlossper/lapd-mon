@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Map Point</title>
+</head>
+<body>
+
+<ion-content padding="true" class="has-footer">
+  <ion-list id="locations">
+    <ion-item class="item-thumbnail-left" id="home-list-item16" ng-repeat="location in locations">
+      <img src="{{location.photo}}">
+      <h2>{{location.name}}</h2>
+      <p>Rating: {{location.rating}}</p>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+</body>
+</html>
