@@ -44,7 +44,7 @@ angular.module('app.controllers', ['app.services'])
         $scope.places = [];
         clearMarkers();
         angular.element(document.querySelector('#map')).empty();
-        $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Pontes"}, {id: 4, value: "Estátuas"}];
+        $scope.categories = [{id: 1, value: "Igrejas"}, {id: 2, value: "Museus"}, {id: 3, value: "Galerias de Arte"}, {id: 4, value: "Estátuas"}];
         $scope.safeApply();
       };
 
@@ -114,6 +114,8 @@ angular.module('app.controllers', ['app.services'])
 
         var definedRadius = $scope.distanceValue * 1000;
 
+        $scope.safeApply();
+
         var request_churches = {
           location: $scope.position,
           radius: definedRadius,
@@ -130,7 +132,7 @@ angular.module('app.controllers', ['app.services'])
 
         var request_art = {
           location: $scope.position,
-          radius: 5000,
+          radius: definedRadius,
           query: 'arte',
           type: 'art_gallery'
         };
